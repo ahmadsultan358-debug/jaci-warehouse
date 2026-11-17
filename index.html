@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a8a">
+<title>أرشيف مستودع قطع الغيار - JACI</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+    :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --ink: #1e293b;
+        --mut: #64748b;
+        --line: #cbd5e1;
+        --primary: #1e3a8a;
+        --primary-hover: #1d4ed8;
+        --accent: #d97706;
+        --bad: #dc2626;
+        --ok: #16a34a;
+        --soft: #f1f5f9;
+        --grad: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+    }
+
+    [data-theme="dark"] {
+        --bg: #090d16;
+        --card: #111827;
+        --ink: #f3f4f6;
+        --mut: #9ca3af;
+        --line: #374151;
+        --primary: #3b82f6;
+        --primary-hover: #60a5fa;
+        --accent: #fbbf24;
+        --bad: #ef4444;
+        --ok: #22c55e;
+        --soft: #1f2937;
+        --grad: linear-gradient(135deg, #0b1329 0%, #1e293b 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif; transition: background-color 0.25s, color 0.25s, border-color 0.25s; }
+
+    body { background-color: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.5; padding-bottom: 85px; }
+    @media (min-width: 769px) { body { padding-bottom: 30px; } }
+
+    header {
+        background: var(--grad);
+        color: #fff;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid var(--accent);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+    .logo {
+        width: 44px; height: 44px; background: #fff; border-radius: 10px; padding: 3px;
+        display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .logo svg { width: 100%; height: 100%; object-fit: contain; }
+    .brand-text b { font-size: 15px; display: block; line-height: 1.2; }
+    .brand-text small { font-size: 10px; color: var(--accent); font-weight: 600; }
+
+    nav.desktop-nav { display: none; gap: 6px; flex-wrap: wrap; }
+    @media (min-width: 769px) { nav.desktop-nav { display: flex; } }
+    nav.desktop-nav button {
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+        padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    nav.desktop-nav button:hover, nav.desktop-nav button.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    nav.mobile-nav {
+        position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--accent);
+        display: flex; justify-content: space-around; padding: 6px 2px env(safe-area-inset-bottom, 8px); z-index: 60;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+    }
+    @media (min-width: 769px) { nav.mobile-nav { display: none; } }
+    nav.mobile-nav button {
+        background: transparent; border: 0; color: var(--mut); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; font-size: 9px; font-weight: 700; gap: 2px; padding: 4px 2px;
+        border-radius: 8px; flex: 1; cursor: pointer;
+    }
+    nav.mobile-nav button span.ico { font-size: 17px; }
+    nav.mobile-nav button.active { color: var(--primary); background: rgba(217, 119, 6, 0.15); }
+
+    main { max-width: 1300px; margin: 20px auto; padding: 0 14px; }
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 18px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--soft); padding-bottom: 12px; }
+    .card-header h2 { font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+    @media (min-width: 769px) { .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+    .stat-box { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--line); border-right: 4px solid var(--accent); }
+    .stat-box span { font-size: 11px; color: var(--mut); display: block; margin-bottom: 4px; font-weight: 600; }
+    .stat-box b { font-size: 22px; color: var(--primary); }
+
+    .action-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .action-grid { grid-template-columns: repeat(auto-fit, minmax(180px, max-content)); } }
+
+    .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    input, select, textarea { font: inherit; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); width: 100%; }
+
+    .btn {
+        padding: 11px 18px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 13px; transition: 0.15s; box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-success { background: var(--ok); color: #fff; }
+    .btn-warning { background: var(--accent); color: #fff; }
+    .btn-danger { background: var(--bad); color: #fff; }
+    .btn-outline { background: var(--soft); border: 1px solid var(--line); color: var(--ink); box-shadow: none; }
+
+    .hero-logo-box { width: 110px; height: 110px; margin: 0 auto 16px; background: #fff; border-radius: 22px; padding: 8px; box-shadow: 0 6px 20px rgba(30, 58, 138, 0.15); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; }
+
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { background: var(--soft); font-weight: 700; color: var(--mut); }
+    tr:hover { background: rgba(217, 119, 6, 0.04); }
+
+    #toast {
+        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff;
+        padding: 12px 22px; border-radius: 12px; border: 2px solid var(--accent); font-weight: 700; z-index: 1000;
+        display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; width: max-content; max-width: 90vw; font-size: 13.5px;
+    }
+    @media (min-width: 769px) { #toast { bottom: 30px; } }
+
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 14px; }
+    .modal { background: var(--card); border-radius: 18px; padding: 24px; max-width: 550px; width: 100%; border: 2px solid var(--accent); max-height: 95vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+
+    .qr-badge { display: inline-block; padding: 4px 8px; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; font-family: monospace; font-size: 11px; font-weight: 700; color: var(--primary); }
+nav.mobile-nav{overflow-x:auto}nav.mobile-nav button{min-width:58px}
+html{padding-top:env(safe-area-inset-top,0px)}header{top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#1e3a8a;z-index:70}
+.bad{color:var(--bad);font-weight:700}.ok{color:var(--ok);font-weight:700}td small{color:var(--mut)}textarea{margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="brand" onclick="switchTab('home'); return false;">
+        <div class="logo">
+            <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z" fill="#1e40af"/>
+                <path d="M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z" fill="#ea580c"/>
+                <path d="M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z" fill="#dc2626"/>
+                <path d="M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z" fill="#eab308"/>
+                <text x="100" y="202" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#1e3a8a" text-anchor="middle">Jaci</text>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <b>JACI Warehouse</b>
+            <small>نظام الأرشيف الآلي</small>
+        </div>
+    </a>
+
+    <nav class="desktop-nav">
+        <button onclick="switchTab('home')" class="active" id="dnav-home">🏠 الرئيسية</button>
+        <button onclick="switchTab('items')" id="dnav-items">📦 الأصناف</button>
+        <button onclick="switchTab('vouchers')" id="dnav-vouchers">🧾 سندات الاستلام</button>
+        <button onclick="switchTab('disb')" id="dnav-disb">📤 المصروفات</button>
+        <button onclick="switchTab('archive')" id="dnav-archive">🗂️ التقارير والأرشيف</button>
+        <button onclick="switchTab('parties')" id="dnav-parties">👥 الموردون والمستلمون</button>
+        <button onclick="switchTab('smart')" id="dnav-smart">🎙️ الإدخال السريع</button>
+        <button onclick="switchTab('templates')" id="dnav-templates">📑 القوالب</button>
+        <button onclick="switchTab('backup')" id="dnav-backup">💾 النسخ والتطبيق</button>
+    </nav>
+
+    <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="تبديل الوضع الليلي" style="background: rgba(255,255,255,0.15); border: 1px solid var(--accent); color: #fff; width: 40px; height: 40px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🌙</button>
+</header>
+
+<nav class="mobile-nav">
+    <button onclick="switchTab('home')" class="active" id="mnav-home"><span class="ico">🏠</span><span>الرئيسية</span></button>
+    <button onclick="switchTab('items')" id="mnav-items"><span class="ico">📦</span><span>الأصناف</span></button>
+    <button onclick="switchTab('vouchers')" id="mnav-vouchers"><span class="ico">🧾</span><span>السندات</span></button>
+    <button onclick="switchTab('disb')" id="mnav-disb"><span class="ico">📤</span><span>الصرف</span></button>
+    <button onclick="switchTab('archive')" id="mnav-archive"><span class="ico">🗂️</span><span>التقارير</span></button>
+    <button onclick="switchTab('parties')" id="mnav-parties"><span class="ico">👥</span><span>الجهات</span></button>
+    <button onclick="switchTab('smart')" id="mnav-smart"><span class="ico">🎙️</span><span>سريع</span></button>
+    <button onclick="switchTab('templates')" id="mnav-templates"><span class="ico">📑</span><span>القوالب</span></button>
+    <button onclick="switchTab('backup')" id="mnav-backup"><span class="ico">💾</span><span>النسخ</span></button>
+</nav>
+
+<main>
+    <!-- الرئيسية -->
+    <section id="sec-home" class="section active">
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+            <div class="hero-logo-box">
+                <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                    <path d="M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z" fill="#1e40af"/>
+                    <path d="M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z" fill="#ea580c"/>
+                    <path d="M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z" fill="#dc2626"/>
+                    <path d="M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z" fill="#eab308"/>
+                    <text x="100" y="202" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#1e3a8a" text-anchor="middle">Jaci</text>
+                </svg>
+            </div>
+            <h1 style="font-size: 20px; color: var(--primary); margin-bottom: 6px;">نظام إدارة وأرشيف مستودع قطع الغيار</h1>
+            <p style="color: var(--mut); margin-bottom: 20px; font-size: 13.5px;">الشركة الأردنية العربية للصناعات الكيماوية (JACI)</p>
+            <div class="action-grid" style="justify-content: center;">
+                <button class="btn btn-primary" onclick="switchTab('items')">📦 إدارة المستودع والأصناف</button>
+                <button class="btn btn-warning" onclick="switchTab('archive')">🗂️ إصدار تقارير مع رمز QR</button>
+                <button class="btn btn-success" onclick="requestAppPermissions()">🔔 تفعيل الإشعارات والأذونات</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><span>إجمالي الأصناف</span><b id="st-items">0</b></div>
+            <div class="stat-box"><span>سندات الاستلام</span><b id="st-vouchers">0</b></div>
+            <div class="stat-box"><span>سجلات الصرف</span><b id="st-disb">0</b></div>
+            <div class="stat-box"><span>تقارير الأرشيف</span><b id="st-archive">0</b></div>
+        </div>
+
+        <div class="card"><div class="card-header"><h2>⚠️ نواقص المخزون</h2></div><div id="low-list"></div></div>
+
+        <div class="card">
+            <div class="card-header"><h2>⚙️ إدارة وصيانة النظام</h2></div>
+            <p style="color: var(--mut); margin-bottom: 14px; font-size: 13px;">إفراغ المعاملات والمخزون بكلمة مرور سرية مع الحفاظ على الجداول والتنسيقات.</p>
+            <button class="btn btn-danger" onclick="openResetModal()">🗑️ إفراغ بيانات النظام (كلمة المرور)</button>
+        </div>
+    </section>
+
+    <!-- الأصناف -->
+    <section id="sec-items" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📦 الأصناف وقطع الغيار</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openItemModal()">+ صنف جديد</button>
+                    <button class="btn btn-success" onclick="exportCSV('items')">📤 تصدير الأصناف</button>
+                </div>
+            </div>
+            <div class="bar">
+                <input type="text" id="search-items" placeholder="ابحث برمز الصنف أو الوصف..." onkeyup="renderItemsTable()" style="flex:1;">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>رمز الصنف (SKU)</th><th>الوصف</th><th>التصنيف</th><th>الموقع</th><th>الرصيد الحالي</th><th>الحد الأدنى</th><th>إجراءات</th></tr></thead>
+                    <tbody id="tbody-items"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- سندات الاستلام (فئة أصناف وكميات + صورة الفاتورة) -->
+    <section id="sec-vouchers" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>🧾 سندات الاستلام (أصناف وكميات ومرفق الفاتورة)</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openVoucherModal()">+ سند استلام جديد</button>
+                    <button class="btn btn-success" onclick="exportCSV('vouchers')">📤 تصدير السندات</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>رقم السند</th><th>رقم الفاتورة</th><th>المورد</th><th>التاريخ</th><th>المبلغ الإجمالي</th><th>مرفق الفاتورة</th><th>الأصناف والكميات</th><th>إجراءات</th></tr></thead>
+                    <tbody id="tbody-vouchers"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- المصروفات -->
+    <section id="sec-disb" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📤 أذونات الصرف اليومي</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openDisbModal()">+ صرف صنف</button>
+                    <button class="btn btn-success" onclick="exportCSV('disb')">📤 تصدير الصرف</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>رقم الصرف</th><th>التاريخ</th><th>الصنف</th><th>الكمية</th><th>مكان الصرف</th><th>المستلم</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
+                    <tbody id="tbody-disb"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- الأرشيف والتقارير مع رمز QR -->
+    <section id="sec-archive" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>🗂️ التقارير والأرشيف الذكي مع رمز الاستجابة (QR)</h2>
+            </div>
+            <div style="background: var(--soft); padding: 16px; border-radius: 12px; margin-bottom: 18px; border: 1px solid var(--line);">
+                <h3 style="font-size: 14.5px; color: var(--primary); margin-bottom: 10px;">📋 إصدار تقرير رسمي مع رمز QR:</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
+                    <select id="report-type-select" style="max-width: 250px;">
+                        <option value="items">تقرير المخزون والأصناف</option>
+                        <option value="vouchers">تقرير سندات الاستلام والموردين</option>
+                        <option value="disb">تقرير أذونات الصرف والمصروفات</option><option value="low">تقرير النواقص</option><option value="scrap">تقرير الإتلاف</option><option value="card">كشف حركة صنف</option>
+                    </select>
+                    <select id="report-format-select" style="max-width: 180px;">
+                        <option value="pdf">طباعة / تقرير إلكتروني PDF</option>
+                        <option value="print">معاينة وطباعة مباشرة</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="generateReportWithQR()">⚡ إصدار التقرير وحفظه في الأرشيف</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>نوع التقرير</th><th>عنوان التقرير</th><th>الرقم المرجعي</th><th>رمز QR التحقق</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+                    <tbody id="tbody-archive"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- القوالب -->
+    <section id="sec-templates" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📑 قوالب Excel واستيراد البيانات</h2>
+                <div class="action-grid">
+                    <button class="btn btn-success" onclick="document.getElementById('import-sheet-input').click()">📤 رفع جدول معبأ</button>
+                    <input type="file" id="import-sheet-input" accept=".csv,.txt,.tsv" style="display:none" onchange="handleSheetImport(event)">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                <div class="card" style="margin:0; background: var(--soft); border-top: 3px solid var(--primary);">
+                    <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 6px;">📊 قالب الأصناف</h3>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('items')">⬇️ تحميل القالب</button>
+                </div>
+                <div class="card" style="margin:0; background: var(--soft); border-top: 3px solid var(--accent);">
+                    <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 6px;">🧾 قالب السندات</h3>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('vouchers')">⬇️ تحميل القالب</button>
+                </div>
+                <div class="card" style="margin:0; background: var(--soft); border-top: 3px solid var(--ok);">
+                    <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 6px;">📤 قالب الصرف</h3>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('disb')">⬇️ تحميل القالب</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- النسخ الاحتياطي وتطبيق الأندرويد -->
+    <section id="sec-backup" class="section">
+        <div class="card">
+            <div class="card-header"><h2>💾 النسخ الاحتياطي وحزمة تطبيق الأندرويد</h2></div>
+            <div style="background: var(--soft); border: 2px dashed var(--accent); border-radius: 14px; padding: 18px; margin-bottom: 18px;">
+                <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 6px;">📱 حزمة تطبيق الأندرويد والعمل دون اتصال</h3>
+                <div style="margin-bottom: 14px;"><button class="btn btn-success" style="width: 100%; font-size: 14px; padding: 13px;" onclick="downloadFullZipPackage()">📦 تحميل المشروع كامل في ملف مضغوط (JACI-App.zip)</button></div>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="downloadAndroidAppPackage('index.html')">📲 تحميل index.html</button>
+                    <button class="btn btn-warning" onclick="downloadAndroidAppPackage('manifest.json')">⚙️ تحميل manifest.json</button>
+                    <button class="btn btn-outline" onclick="downloadAndroidAppPackage('sw.js')">⚡ تحميل sw.js</button>
+                </div>
+            </div>
+            <div class="action-grid">
+                <button class="btn btn-success" onclick="downloadJSONBackup()">💾 نسخة احتياطية للبيانات (.json)</button>
+                <button class="btn btn-outline" onclick="document.getElementById('file-restore').click()">🔄 استعادة البيانات</button>
+                <input type="file" id="file-restore" accept=".json" style="display:none" onchange="restoreJSONBackup(event)">
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-parties" class="section">
+        <div class="card"><div class="card-header"><h2>👥 الموردون والمستلمون (جداول مرجعية)</h2></div>
+            <p style="color:var(--mut);font-size:12.5px;margin-bottom:12px">كل اسم يُسجَّل مرة واحدة هنا، وتُربط به السندات وأذونات الصرف تلقائيًا دون تكرار.</p>
+            <div class="bar"><input id="p-sup" placeholder="مورد جديد" style="flex:2"><input id="p-sup-x" placeholder="الهاتف" style="flex:1"><button class="btn btn-primary" onclick="addParty('suppliers','p-sup','p-sup-x','phone')">+ مورد</button></div>
+            <div class="table-wrap"><table><thead><tr><th>المورد</th><th>الهاتف</th><th>السندات</th><th>إجراءات</th></tr></thead><tbody id="tbody-suppliers"></tbody></table></div></div>
+        <div class="card"><div class="card-header"><h2>🧑‍🔧 المستلمون</h2></div>
+            <div class="bar"><input id="p-rcv" placeholder="مستلم جديد" style="flex:2"><input id="p-rcv-x" placeholder="القسم" style="flex:1"><button class="btn btn-primary" onclick="addParty('receivers','p-rcv','p-rcv-x','dept')">+ مستلم</button></div>
+            <div class="table-wrap"><table><thead><tr><th>المستلم</th><th>القسم</th><th>الحركات</th><th>إجراءات</th></tr></thead><tbody id="tbody-receivers"></tbody></table></div></div>
+    </section>
+    <section id="sec-smart" class="section">
+        <div class="card"><div class="card-header"><h2>🎙️ الإدخال السريع بالصوت والكاميرا</h2></div>
+            <p style="color:var(--mut);font-size:12.5px;margin-bottom:12px">قل مثلًا: «صرف 3 فلتر زيت إلى أحمد في الصيانة» أو «إتلاف 1 حساس حرارة». يُجهَّز الإذن للمراجعة ولا يُسجَّل قبل اعتمادك.</p>
+            <div class="action-grid" style="margin-bottom:12px"><button class="btn btn-primary" onclick="startVoice()">🎙️ تسجيل صوتي</button><button class="btn btn-warning" onclick="openVoucherModal()">📷 تصوير فاتورة واردة</button></div>
+            <textarea id="voice-text" rows="2" placeholder="أو اكتب الجملة هنا..."></textarea>
+            <button class="btn btn-success" onclick="parseVoice($('voice-text').value)">⚡ تحليل وتجهيز الإذن</button></div>
+        <div class="card"><div class="card-header"><h2>🕘 آخر الحركات (استلام وصرف وإتلاف)</h2></div>
+            <div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الحركة</th><th>المرجع</th><th>الصنف</th><th>الكمية</th><th>الجهة</th></tr></thead><tbody id="tbody-moves"></tbody></table></div></div>
+    </section>
+
+    <footer style="text-align: center; padding: 20px 10px; color: var(--mut); font-size: 11.5px;">
+        الشركة الأردنية العربية للصناعات الكيماوية (JACI) &copy; 2026 - جميع الحقوق محفوظة
+    </footer>
+</main>
+
+<!-- نافذة إضافة صنف -->
+<div id="modal-item" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary);">➕ إضافة صنف جديد</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="inp-sku" placeholder="رمز الصنف (SKU) *">
+            <input type="text" id="inp-name" placeholder="وصف الصنف *">
+            <input type="text" id="inp-cat" placeholder="التصنيف">
+            <input type="text" id="inp-loc" placeholder="الموقع / الرف">
+            <input type="number" id="inp-qty" placeholder="الكمية الافتتاحية" value="10">
+            <input type="number" id="inp-min" placeholder="الحد الأدنى للتنبيه" value="3">
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewItem()">💾 حفظ</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة سند الاستلام (أصناف وكميات + مرفق الفاتورة) -->
+<div id="modal-voucher" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary);">🧾 سند استلام (أصناف وكميات وفاتورة)</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" id="v-no" placeholder="رقم السند (مثال: RCV-002)">
+                <input type="text" id="v-inv" placeholder="رقم الفاتورة">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" id="v-sup" list="dl-sup" placeholder="اسم المورد">
+                <input type="number" id="v-total" placeholder="المبلغ الإجمالي (JD)">
+                <input type="date" id="v-date">
+            </div>
+            
+            <div style="background: var(--soft); padding: 12px; border-radius: 10px; border: 1px solid var(--line);">
+                <label style="font-weight:700; margin-bottom:6px; display:block; color:var(--primary);">📎 إرفاق صورة الفاتورة / المستند:</label>
+                <input type="file" id="v-invoice-file" accept="image/*" onchange="handleInvoiceImageUpload(event)">
+                <div id="invoice-preview-text" style="font-size:11px; color:var(--mut); margin-top:4px;">لم يتم إرفاق ملف بعد</div>
+                <button class="btn btn-outline" style="margin-top:8px;font-size:12px" onclick="ocrInvoice()">🔍 قراءة رقم الفاتورة والتاريخ من الصورة (OCR)</button>
+            </div>
+
+            <div style="border-top: 1px solid var(--line); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <b style="font-size: 13px; color: var(--primary);">الأصناف والكميات الواردة في السند:</b>
+                    <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addVoucherItemRow()">+ إضافة صنف للسند</button>
+                </div>
+                <div id="voucher-items-container" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+                    <!-- صف صنف افتراضي -->
+                    <div class="voucher-row" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 6px;">
+                        <input type="text" class="v-item-desc" list="dl-items" placeholder="اختر الصنف من القائمة">
+                        <input type="number" class="v-item-qty" placeholder="الكمية" value="1" min="1">
+                        <button class="btn btn-danger" style="padding: 6px 10px;" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewVoucher()">💾 حفظ واعتماد السند</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة الصرف -->
+<div id="modal-disb" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary);">📤 إذن صرف جديد</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <select id="d-kind"><option>صرف</option><option>إتلاف</option></select>
+            <input type="text" id="d-id" placeholder="رقم الإذن (تلقائي)">
+            <input type="text" id="d-name" list="dl-items" placeholder="اختر الصنف من القائمة">
+            <input type="number" id="d-qty" placeholder="الكمية المصروفة" value="1">
+            <input type="text" id="d-place" placeholder="مكان الصرف / القسم">
+            <input type="text" id="d-receiver" list="dl-rcv" placeholder="اسم المستلم">
+            <input type="text" id="d-notes" placeholder="ملاحظات">
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewDisb()">💾 اعتماد الصرف</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة كلمة المرور لإفراغ المحتويات -->
+<div id="modal-reset" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 8px; color: var(--bad);">🔐 تأكيد إفراغ محتويات النظام</h3>
+        <p style="font-size: 12.5px; color: var(--mut); margin-bottom: 12px;">أدخل كلمة المرور السرية:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="password" id="inp-reset-pin" placeholder="أدخل كلمة المرور..." inputmode="numeric">
+            <div class="action-grid">
+                <button class="btn btn-danger" onclick="executeFactoryReset()">تأكيد الإفراغ</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<datalist id="dl-items"></datalist><datalist id="dl-sup"></datalist><datalist id="dl-rcv"></datalist>
+<div id="toast"></div>
+
+<script>
+const KEY='JACI_WAREHOUSE_DB_2026_FINAL_QR',PKG={"manifest.json": "{\n \"name\": \"JACI Warehouse\",\n \"short_name\": \"JACI\",\n \"lang\": \"ar\",\n \"dir\": \"rtl\",\n \"start_url\": \"./index.html\",\n \"display\": \"standalone\",\n \"background_color\": \"#1e3a8a\",\n \"theme_color\": \"#1e3a8a\",\n \"icons\": [\n  {\n   \"src\": \"icon.svg\",\n   \"sizes\": \"any\",\n   \"type\": \"image/svg+xml\"\n  }\n ]\n}", "sw.js": "const C='jaci-v1',F=['./','./index.html','./manifest.json','./icon.svg'];\nself.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F))));\nself.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));\n", "icon.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><rect width=\"200\" height=\"200\" rx=\"36\" fill=\"#1e3a8a\"/><path d=\"M40 150V60l40-20v90zM90 40l30 14v90l-30-14zM130 58l30 14v68l-30-14z\" fill=\"#ea580c\"/><text x=\"100\" y=\"188\" font-size=\"40\" font-weight=\"900\" fill=\"#fff\" text-anchor=\"middle\" font-family=\"sans-serif\">Jaci</text></svg>", "README.txt": "JACI Warehouse - افتح index.html في أي متصفح (يعمل دون إنترنت). لتثبيته كتطبيق: ارفع المجلد على استضافة HTTPS أو افتحه من Chrome على الهاتف ثم \"إضافة إلى الشاشة الرئيسية\". البيانات تُحفظ في المتصفح؛ خذ نسخة احتياطية من صفحة النسخ دوريًا.\n"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const today=()=>new Date().toISOString().slice(0,10);
+const D9='٠١٢٣٤٥٦٧٨٩';
+const norm=s=>String(s||'').trim().toLowerCase().replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ');
+const num=s=>parseFloat(String(s??'').replace(/[٠-٩]/g,d=>D9.indexOf(d)).replace('٫','.'))||0;
+const EMPTY=()=>({items:[],suppliers:[],receivers:[],vouchers:[],disb:[],archive:[]});
+const empty=(n,t)=>`<tr><td colspan="${n}" style="text-align:center;color:var(--mut)">${t}</td></tr>`;
+const sm='style="padding:3px 6px;font-size:10.5px"';
+
+/* ===== الجداول المرجعية: كل اسم يُسجَّل مرة واحدة ===== */
+function ensure(o,t,name,extra){name=String(name||'').trim();if(!name)return null;let r=o[t].find(x=>norm(x.name)===norm(name));if(!r){r=Object.assign({id:uid(t[0]),name},extra);o[t].push(r)}return r.id}
+function findItem(o,t){t=String(t||'');const n=norm(t.split(' — ')[0]),m=norm(t);if(!m)return null;return(o.items.find(i=>norm(i.sku)===n)||o.items.find(i=>norm(i.name)===m)||(m.length>2&&o.items.find(i=>norm(i.name).includes(m)))||{}).id||null}
+function newItem(o,name){const r={id:uid('i'),sku:'NEW-'+(o.items.length+1),name,category:'',location:'',open:0,min:3};o.items.push(r);return r.id}
+function migrate(d){const o=Object.assign(EMPTY(),d||{});
+ o.items.forEach(i=>{i.id=i.id||uid('i');if(i.open==null){i.open=num(i.qty);delete i.qty}i.min=i.min??3});
+ o.vouchers.forEach(v=>{v.id=v.id||uid('v');if('sup'in v){v.supId=ensure(o,'suppliers',v.sup);delete v.sup}
+  if(v.items){v.lines=v.items.map(x=>({itemId:findItem(o,x.desc)||newItem(o,x.desc),qty:num(x.qty),price:0}));delete v.items}v.lines=v.lines||[]});
+ o.disb.forEach(d=>{if(!d.no){d.no=d.id;d.id=uid('d')}d.kind=d.kind||'صرف';
+  if('name'in d){d.itemId=findItem(o,d.name)||newItem(o,d.name);delete d.name}
+  if('receiver'in d){d.recvId=ensure(o,'receivers',d.receiver);delete d.receiver}});
+ return o}
+const SEED={items:[{id:'i1',sku:'SP-1001',name:'فلتر زيت هيدروليكي رئيسي',category:'قطع ميكانيكية',location:'رف A-01',open:25,min:5},{id:'i2',sku:'SP-1002',name:'حساس حرارة محرك إلكتروني',category:'قطع كهربائية',location:'رف B-04',open:8,min:3}],
+ suppliers:[{id:'s1',name:'الشركة الفنية المتقدمة',phone:''}],receivers:[{id:'r1',name:'أحمد سلطان',dept:'الصيانة'}],
+ vouchers:[{id:'v1',no:'RCV-001',inv:'INV-9901',supId:'s1',date:'2026-11-01',total:450,notes:'توريد',lines:[{itemId:'i1',qty:5,price:0}],invoiceImage:''}],
+ disb:[{id:'d1',no:'DSB-001',kind:'صرف',date:'2026-11-02',itemId:'i1',qty:2,place:'الصيانة',recvId:'r1',notes:'صيانة'}],archive:[]};
+let db=loadDB(),tempInvoiceBase64='',editId=null;
+function loadDB(){try{const r=localStorage.getItem(KEY);return migrate(r?JSON.parse(r):JSON.parse(JSON.stringify(SEED)))}catch(e){return migrate(JSON.parse(JSON.stringify(SEED)))}}
+function saveDB(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){showToast('⚠️ تعذر الحفظ (المساحة ممتلئة؟ حمّل نسخة احتياطية)')}updateStats()}
+const by=(t,id)=>db[t].find(x=>x.id===id);
+const nm=(t,id)=>by(t,id)?.name||'—';
+const lbl=id=>{const i=by('items',id);return i?i.sku+' — '+i.name:'—'};
+const stock=id=>{const i=by('items',id);if(!i)return 0;let s=num(i.open);db.vouchers.forEach(v=>v.lines.forEach(l=>{if(l.itemId===id)s+=l.qty}));db.disb.forEach(d=>{if(d.itemId===id)s-=d.qty});return s};
+const nextNo=(p,a)=>p+String(a.reduce((m,x)=>Math.max(m,parseInt((x.no||'').replace(/\D/g,''))||0),0)+1).padStart(3,'0');
+
+function showToast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3600)}
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);$('theme-toggle-btn').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem('JACI_THEME',t)}catch(e){}}
+function initTheme(){let t;try{t=localStorage.getItem('JACI_THEME')}catch(e){}setTheme(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))}
+function toggleDarkMode(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')}
+function switchTab(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+ ['sec-','dnav-','mnav-'].forEach(p=>$(p+id)?.classList.add('active'));window.scrollTo({top:0,behavior:'smooth'});renderAllTables()}
+function updateStats(){$('st-items').textContent=db.items.length;$('st-vouchers').textContent=db.vouchers.length;$('st-disb').textContent=db.disb.length;$('st-archive').textContent=db.archive.length}
+
+/* ===== العرض ===== */
+function renderAllTables(){renderLists();renderItemsTable();renderVouchersTable();renderDisbTable();renderArchiveTable();renderParties();renderMoves();renderLow();updateStats()}
+function renderLists(){$('dl-items').innerHTML=db.items.map(i=>`<option value="${esc(i.sku+' — '+i.name)}">`).join('');$('dl-sup').innerHTML=db.suppliers.map(s=>`<option value="${esc(s.name)}">`).join('');$('dl-rcv').innerHTML=db.receivers.map(s=>`<option value="${esc(s.name)}">`).join('')}
+function renderLow(){const l=db.items.filter(i=>stock(i.id)<=i.min);$('low-list').innerHTML=l.length?l.map(i=>`<div style="padding:6px 0;border-bottom:1px solid var(--soft)"><b>${esc(i.sku)}</b> ${esc(i.name)} — <span class="bad">${stock(i.id)}</span> / ${i.min}</div>`).join(''):'<span class="ok">لا توجد نواقص ✅</span>'}
+function renderItemsTable(){const q=norm($('search-items')?.value),tb=$('tbody-items');if(!tb)return;
+ const f=db.items.filter(i=>norm(i.sku+' '+i.name+' '+i.category+' '+i.location).includes(q));
+ tb.innerHTML=f.length?f.map(i=>{const s=stock(i.id);return `<tr><td><b>${esc(i.sku)}</b></td><td>${esc(i.name)}</td><td>${esc(i.category)||'-'}</td><td>${esc(i.location)||'-'}</td><td class="${s<=i.min?'bad':'ok'}">${s}</td><td>${i.min}</td><td><button class="btn btn-outline" ${sm} onclick="openItemModal('${i.id}')">تعديل</button> <button class="btn btn-danger" ${sm} onclick="deleteItem('${i.id}')">حذف</button></td></tr>`}).join(''):empty(7,'لا توجد أصناف مطابقة')}
+function renderVouchersTable(){const tb=$('tbody-vouchers');if(!tb)return;
+ tb.innerHTML=db.vouchers.length?[...db.vouchers].reverse().map(v=>`<tr><td><b>${esc(v.no)}</b></td><td>${esc(v.inv)||'-'}</td><td>${esc(nm('suppliers',v.supId))}</td><td>${v.date}</td><td><b>${v.total} JD</b></td><td>${v.invoiceImage?`<a href="#" class="qr-badge" style="color:var(--ok)" onclick="viewImg('${v.id}');return false">عرض الفاتورة 📎</a>`:'<span style="color:var(--mut)">بدون مرفق</span>'}</td><td style="white-space:normal;max-width:250px;font-size:12px">${v.lines.map(l=>esc(lbl(l.itemId))+' ('+l.qty+')').join('، ')}</td><td><button class="btn btn-danger" ${sm} onclick="delVoucher('${v.id}')">حذف</button></td></tr>`).join(''):empty(8,'لا توجد سندات استلام مسجلة')}
+function renderDisbTable(){const tb=$('tbody-disb');if(!tb)return;
+ tb.innerHTML=db.disb.length?[...db.disb].reverse().map(d=>`<tr><td><b>${esc(d.no)}</b> <small>${d.kind}</small></td><td>${d.date}</td><td>${esc(lbl(d.itemId))}</td><td><b>${d.qty}</b></td><td>${esc(d.place)}</td><td>${esc(nm('receivers',d.recvId))}</td><td>${esc(d.notes)||'-'}</td><td><button class="btn btn-danger" ${sm} onclick="delDisb('${d.id}')">حذف</button></td></tr>`).join(''):empty(8,'لا توجد حركات صرف مسجلة')}
+function renderArchiveTable(){const tb=$('tbody-archive');if(!tb)return;
+ tb.innerHTML=db.archive.length?db.archive.map((a,x)=>`<tr><td>${esc(a.type)}</td><td><b>${esc(a.title)}</b></td><td>${a.ref}</td><td><span class="qr-badge">QR-${a.ref}</span></td><td>${a.date}</td><td><button class="btn btn-outline" ${sm} onclick="viewReportDetail(${x})">📄 معاينة التقرير</button></td></tr>`).join(''):empty(6,'لم يتم إنشاء أي تقارير بعد')}
+function renderParties(){
+ $('tbody-suppliers').innerHTML=db.suppliers.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.phone)||'-'}</td><td>${db.vouchers.filter(v=>v.supId===s.id).length}</td><td><button class="btn btn-danger" ${sm} onclick="delParty('suppliers','${s.id}')">حذف</button></td></tr>`).join('')||empty(4,'لا يوجد موردون');
+ $('tbody-receivers').innerHTML=db.receivers.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.dept)||'-'}</td><td>${db.disb.filter(d=>d.recvId===s.id).length}</td><td><button class="btn btn-danger" ${sm} onclick="delParty('receivers','${s.id}')">حذف</button></td></tr>`).join('')||empty(4,'لا يوجد مستلمون')}
+function renderMoves(){const m=[...db.vouchers.flatMap(v=>v.lines.map(l=>({d:v.date,t:'استلام',r:v.no,i:l.itemId,q:l.qty,p:nm('suppliers',v.supId)}))),...db.disb.map(d=>({d:d.date,t:d.kind,r:d.no,i:d.itemId,q:d.qty,p:nm('receivers',d.recvId)}))].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,15);
+ $('tbody-moves').innerHTML=m.map(x=>`<tr><td>${x.d}</td><td>${x.t}</td><td>${esc(x.r)}</td><td>${esc(lbl(x.i))}</td><td><b>${x.q}</b></td><td>${esc(x.p)}</td></tr>`).join('')||empty(6,'لا توجد حركات')}
+
+/* ===== الأصناف ===== */
+function openItemModal(id){editId=id||null;const i=id?by('items',id):{};const s=(k,v)=>$(k).value=v??'';
+ s('inp-sku',i.sku);s('inp-name',i.name);s('inp-cat',i.category);s('inp-loc',i.location);s('inp-qty',id?i.open:10);s('inp-min',id?i.min:3);$('modal-item').style.display='flex'}
+function saveNewItem(){const sku=$('inp-sku').value.trim(),name=$('inp-name').value.trim();if(!sku||!name)return showToast('يرجى إدخال الرمز والوصف');
+ if(db.items.some(i=>i.id!==editId&&norm(i.sku)===norm(sku)))return showToast('⚠️ رمز الصنف موجود مسبقًا — لا يمكن تكراره');
+ const v={sku,name,category:$('inp-cat').value.trim(),location:$('inp-loc').value.trim(),open:num($('inp-qty').value),min:num($('inp-min').value)};
+ editId?Object.assign(by('items',editId),v):db.items.push(Object.assign({id:uid('i')},v));saveDB();closeModals();renderAllTables();showToast('تم حفظ الصنف')}
+function deleteItem(id){if(db.vouchers.some(v=>v.lines.some(l=>l.itemId===id))||db.disb.some(d=>d.itemId===id))return showToast('لا يمكن حذف صنف عليه حركات (استلام/صرف)');
+ if(!confirm('حذف الصنف؟'))return;db.items=db.items.filter(i=>i.id!==id);saveDB();renderAllTables()}
+
+/* ===== سندات الاستلام ===== */
+function closeModals(){document.querySelectorAll('.modal-bg').forEach(m=>m.style.display='none')}
+function openVoucherModal(){tempInvoiceBase64='';['v-no','v-inv','v-sup','v-total','v-invoice-file'].forEach(i=>$(i).value='');$('v-date').value=today();$('v-no').placeholder=nextNo('RCV-',db.vouchers);
+ $('voucher-items-container').innerHTML='';addVoucherItemRow();$('invoice-preview-text').textContent='لم يتم إرفاق ملف بعد';$('modal-voucher').style.display='flex'}
+function addVoucherItemRow(){const r=document.createElement('div');r.className='voucher-row';r.style.cssText='display:grid;grid-template-columns:2fr 1fr auto;gap:6px';
+ r.innerHTML=`<input type="text" class="v-item-desc" list="dl-items" placeholder="اختر الصنف من القائمة"><input type="number" class="v-item-qty" placeholder="الكمية" value="1" min="1"><button class="btn btn-danger" style="padding:6px 10px" onclick="this.parentElement.remove()">×</button>`;$('voucher-items-container').appendChild(r)}
+function handleInvoiceImageUpload(e){const f=e.target.files[0];if(!f)return;const im=new Image();
+ im.onload=()=>{const k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  tempInvoiceBase64=c.toDataURL('image/jpeg',.72);$('invoice-preview-text').textContent='✅ تم إرفاق الفاتورة ('+f.name+')';URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f)}
+function viewImg(id){const v=by('vouchers',id),w=window.open('','_blank');if(w){w.document.write('<img src="'+v.invoiceImage+'" style="max-width:100%">');w.document.close()}}
+async function ocrInvoice(){if(!tempInvoiceBase64)return showToast('أرفق صورة الفاتورة أولًا');
+ try{showToast('⏳ جاري قراءة النص (يحتاج اتصالًا بالإنترنت)...');
+  if(!window.Tesseract)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  const{data}=await Tesseract.recognize(tempInvoiceBase64,'ara+eng'),t=data.text.replace(/[٠-٩]/g,d=>D9.indexOf(d));
+  const inv=(t.match(/(?:invoice|inv|فاتورة|رقم)[^A-Za-z0-9]{0,6}([A-Z0-9][A-Z0-9\-\/]{2,})/i)||[])[1];
+  const a=t.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/),b=t.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/),p=x=>String(x).padStart(2,'0');
+  if(inv)$('v-inv').value=inv;if(a)$('v-date').value=`${a[1]}-${p(a[2])}-${p(a[3])}`;else if(b)$('v-date').value=`${b[3]}-${p(b[2])}-${p(b[1])}`;
+  showToast(inv||a||b?'✅ تمت القراءة — راجع الرقم والتاريخ':'لم يُعثر على رقم أو تاريخ، أدخلهما يدويًا')}catch(e){showToast('❌ تعذرت القراءة (تحقق من الاتصال)')}}
+function saveNewVoucher(){const no=$('v-no').value.trim()||nextNo('RCV-',db.vouchers),inv=$('v-inv').value.trim(),sn=$('v-sup').value.trim();
+ if(!sn)return showToast('اسم المورد مطلوب');if(db.vouchers.some(v=>norm(v.no)===norm(no)))return showToast('رقم السند مستخدم مسبقًا');
+ const lines=[],miss=[];document.querySelectorAll('.voucher-row').forEach(r=>{const t=r.querySelector('.v-item-desc').value.trim(),q=num(r.querySelector('.v-item-qty').value);if(!t)return;
+  const id=findItem(db,t);if(!id||q<=0)return miss.push(t);const l=lines.find(x=>x.itemId===id);l?l.qty+=q:lines.push({itemId:id,qty:q,price:0})});
+ if(miss.length)return showToast('أصناف غير موجودة في جدول الأصناف: '+miss.join('، '));if(!lines.length)return showToast('أضف صنفًا واحدًا على الأقل');
+ const supId=ensure(db,'suppliers',sn);if(inv&&db.vouchers.some(v=>v.supId===supId&&norm(v.inv)===norm(inv)))return showToast('⚠️ فاتورة هذا المورد مسجلة مسبقًا');
+ db.vouchers.push({id:uid('v'),no,inv,supId,date:$('v-date').value||today(),total:num($('v-total').value),notes:'سند استلام',lines,invoiceImage:tempInvoiceBase64});
+ saveDB();closeModals();renderAllTables();showToast('تم حفظ سند الاستلام وتحديث المخزون')}
+function delVoucher(id){const v=by('vouchers',id);if(!confirm('حذف السند '+v.no+'؟'))return;db.vouchers=db.vouchers.filter(x=>x.id!==id);
+ if(db.items.some(i=>stock(i.id)<0)){db.vouchers.push(v);return showToast('لا يمكن الحذف: سيصبح رصيد صنف سالبًا')}saveDB();renderAllTables()}
+
+/* ===== الصرف والإتلاف ===== */
+function openDisbModal(p){p=p||{};const s=(i,v)=>$(i).value=v??'';s('d-id','');s('d-kind',p.kind||'صرف');s('d-name',p.item);s('d-qty',p.qty||1);s('d-place',p.place);s('d-receiver',p.rcv);s('d-notes','');
+ $('d-id').placeholder=nextNo('DSB-',db.disb);$('modal-disb').style.display='flex'}
+function saveNewDisb(){const kind=$('d-kind').value,id=findItem(db,$('d-name').value),q=num($('d-qty').value);
+ if(!id)return showToast('اختر صنفًا موجودًا من جدول الأصناف');if(q<=0)return showToast('أدخل كمية صحيحة');if(q>stock(id))return showToast('الكمية أكبر من الرصيد المتاح ('+stock(id)+')');
+ const no=$('d-id').value.trim()||nextNo('DSB-',db.disb);if(db.disb.some(d=>norm(d.no)===norm(no)))return showToast('رقم الإذن مستخدم مسبقًا');
+ db.disb.push({id:uid('d'),no,kind,date:today(),itemId:id,qty:q,place:$('d-place').value.trim()||'عام',recvId:ensure(db,'receivers',$('d-receiver').value||'موظف'),notes:$('d-notes').value.trim()});
+ saveDB();closeModals();renderAllTables();showToast('تم اعتماد ال'+kind+' وتحديث الرصيد')}
+function delDisb(id){if(!confirm('حذف الحركة؟'))return;db.disb=db.disb.filter(d=>d.id!==id);saveDB();renderAllTables()}
+
+/* ===== الموردون والمستلمون ===== */
+function addParty(t,a,b,k){const n=$(a).value.trim();if(!n)return showToast('أدخل الاسم');if(db[t].some(x=>norm(x.name)===norm(n)))return showToast('الاسم موجود مسبقًا');
+ ensure(db,t,n,{[k]:$(b).value.trim()});$(a).value=$(b).value='';saveDB();renderAllTables()}
+function delParty(t,id){const used=t==='suppliers'?db.vouchers.some(v=>v.supId===id):db.disb.some(d=>d.recvId===id);if(used)return showToast('لا يمكن الحذف: مرتبط بحركات مسجلة');
+ db[t]=db[t].filter(x=>x.id!==id);saveDB();renderAllTables()}
+
+/* ===== الصوت ===== */
+function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return showToast('المتصفح لا يدعم الصوت، اكتب الجملة ثم اضغط تحليل');
+ const r=new SR();r.lang='ar-JO';r.onresult=e=>{const t=e.results[0][0].transcript;$('voice-text').value=t;parseVoice(t)};r.onerror=()=>showToast('تعذر التسجيل الصوتي');r.start();showToast('🎙️ تحدث الآن...')}
+function parseVoice(t){if(!t.trim())return;const kind=/ا?[إا]تلاف|تالف/.test(t)?'إتلاف':'صرف',q=num((t.match(/[0-9٠-٩]+(?:[.٫][0-9٠-٩]+)?/)||['1'])[0])||1;
+ const place=(t.match(/(?:^|\s)(?:في|قسم|بقسم)\s+(.+)$/)||[])[1]||'',rcv=(t.match(/(?:^|\s)(?:الى|إلى|الي|ل)\s+(.+?)(?=\s(?:في|قسم|بقسم)\s|$)/)||[])[1]||'';
+ const w=new Set(norm(t).split(' ')),best=db.items.map(i=>{const k=norm(i.name+' '+i.sku).split(' ').filter(x=>x.length>1);return{i,s:k.filter(x=>w.has(x)).length/(k.length||1)}}).sort((a,b)=>b.s-a.s)[0];
+ openDisbModal({kind,qty:q,place,rcv,item:best&&best.s>0?best.i.sku+' — '+best.i.name:''});showToast('راجع البيانات ثم اعتمد — لن يُسجَّل شيء قبل الاعتماد')}
+
+/* ===== التقارير و QR ===== */
+const TH={items:['رمز الصنف','وصف الصنف','التصنيف','الموقع','الكمية الافتتاحية','الحد الأدنى'],vouchers:['رقم السند','رقم الفاتورة','المورد','التاريخ','رمز الصنف','الكمية','المبلغ الإجمالي'],disb:['رقم الصرف','التاريخ','النوع','رمز الصنف','الكمية','مكان الصرف','المستلم','ملاحظات']};
+function tplRows(t){if(t==='items')return db.items.map(i=>[i.sku,i.name,i.category,i.location,i.open,i.min]);
+ if(t==='vouchers')return db.vouchers.flatMap(v=>v.lines.map(l=>[v.no,v.inv,nm('suppliers',v.supId),v.date,lbl(l.itemId),l.qty,v.total]));
+ return db.disb.map(d=>[d.no,d.date,d.kind,lbl(d.itemId),d.qty,d.place,nm('receivers',d.recvId),d.notes])}
+function repData(t){
+ if(t==='items'||t==='low'){const l=db.items.filter(i=>t==='items'||stock(i.id)<=i.min);return[t==='items'?'تقرير المخزون والأصناف الشامل':'تقرير نواقص المخزون',['رمز الصنف','الوصف','التصنيف','الموقع','الرصيد الحالي','الحد الأدنى'],l.map(i=>[i.sku,i.name,i.category,i.location,stock(i.id),i.min])]}
+ if(t==='vouchers')return['تقرير سندات الاستلام والموردين',TH.vouchers,tplRows('vouchers')];
+ if(t==='disb')return['تقرير أذونات الصرف والمصروفات',TH.disb,tplRows('disb')];
+ if(t==='scrap')return['تقرير الإتلاف',TH.disb,tplRows('disb').filter(r=>r[2]==='إتلاف')];
+ const id=findItem(db,prompt('رمز أو اسم الصنف:')||'');if(!id){showToast('صنف غير موجود');return null}
+ let b=num(by('items',id).open);const ev=[...db.vouchers.flatMap(v=>v.lines.filter(l=>l.itemId===id).map(l=>[v.date,'استلام',v.no,l.qty,0])),...db.disb.filter(d=>d.itemId===id).map(d=>[d.date,d.kind,d.no,0,d.qty])].sort((x,y)=>x[0].localeCompare(y[0]));
+ return['كشف حركة: '+lbl(id),['التاريخ','الحركة','المرجع','وارد','صادر','الرصيد'],[['—','رصيد افتتاحي','—',b,0,b],...ev.map(e=>{b+=e[3]-e[4];return[...e,b]})]]}
+function qrSvg(t){try{const q=qrcode(0,'M');q.addData(t);q.make();return q.createSvgTag(3,0)}catch(e){return''}}
+const RT={items:'الأصناف',low:'النواقص',vouchers:'السندات',disb:'المصروفات',scrap:'الإتلاف',card:'كشف حركة'};
+function generateReportWithQR(){const type=$('report-type-select').value,fmt=$('report-format-select').value,R=repData(type);if(!R)return;
+ const[title,head,rows]=R,ref='REP-'+Date.now().toString().slice(-6),d=today(),qr=qrSvg(`JACI|${ref}|${d}|${title}`);
+ const html=`<html dir="rtl"><head><meta charset="UTF-8"><title>${esc(title)}</title><style>body{font-family:Tahoma,sans-serif;padding:25px;color:#1e293b}.header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1e3a8a;padding-bottom:15px;margin-bottom:20px}.qr-box{border:2px solid #1e3a8a;padding:8px;border-radius:8px;text-align:center;background:#f8fafc;font-family:monospace;font-size:11px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cbd5e1;padding:8px;text-align:right;font-size:13px}th{background:#1e3a8a;color:#fff}</style></head><body><div class="header"><div><h2 style="color:#1e3a8a">الشركة الأردنية العربية للصناعات الكيماوية (JACI)</h2><h3 style="color:#d97706">${esc(title)}</h3><p style="font-size:12px;color:#64748b">تاريخ الإصدار: ${d} | المرجع: ${ref}</p></div><div class="qr-box">${qr||'<b>VERIFIED QR</b>'}<div>#${ref}</div></div></div><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table><p style="margin-top:25px;text-align:center;font-size:11px;color:#64748b">أُصدر إلكترونيًا من منظومة مستودعات JACI</p></body></html>`;
+ db.archive.unshift({type:'تقرير '+RT[type],title,ref,date:d,htmlContent:html});saveDB();renderAllTables();
+ const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();if(fmt==='print')setTimeout(()=>w.print(),500)}else showToast('اسمح بالنوافذ المنبثقة لعرض التقرير');
+ showToast('✅ تم إنشاء التقرير '+ref+' وحفظه في الأرشيف')}
+function viewReportDetail(i){const r=db.archive[i];if(!r)return;const w=window.open('','_blank');if(w){w.document.write(r.htmlContent);w.document.close()}}
+
+/* ===== ملفات: قوالب / استيراد / تصدير / نسخ احتياطي / zip ===== */
+function dl(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(data instanceof Blob?data:new Blob([data],{type:type||'text/plain'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+const toCSV=rows=>'\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+function exportCSV(t){dl(`JACI_${t}_${today()}.csv`,toCSV([TH[t],...tplRows(t)]),'text/csv;charset=utf-8');showToast('📤 تم التصدير')}
+function downloadStyledTemplate(t){const ex={items:['SP-101','مثال صنف','ميكانيكا','رف A1',10,3],vouchers:['RCV-010','INV-1','اسم المورد',today(),'SP-101',5,100],disb:['DSB-010',today(),'صرف','SP-101',1,'الصيانة','اسم المستلم','']};
+ dl(`JACI_Template_${t}.csv`,toCSV([TH[t],ex[t]]),'text/csv;charset=utf-8');showToast('⬇️ تم تحميل القالب (يفتح في Excel)')}
+function parseCSV(t){const R=[];let r=[],c='',q=false;t=t.replace(/^\uFEFF/,'');
+ for(let i=0;i<t.length;i++){const h=t[i];if(q){if(h==='"'&&t[i+1]==='"'){c+='"';i++}else if(h==='"')q=false;else c+=h}else if(h==='"')q=true;else if(h===','||h===';'||h==='\t'){r.push(c);c=''}else if(h==='\n'||h==='\r'){if(h==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))R.push(r);r=[]}else c+=h}
+ r.push(c);if(r.some(x=>x.trim()))R.push(r);return R}
+function handleSheetImport(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const rows=parseCSV(rd.result),h=rows[0].map(norm),body=rows.slice(1);let ok=0,bad=0;
+ const c=(x,...n)=>{for(const k of n){const j=h.indexOf(norm(k));if(j>=0)return(x[j]||'').trim()}return''};
+ if(h.includes('رقم السند')){const g={};body.forEach(x=>(g[c(x,'رقم السند')]=g[c(x,'رقم السند')]||[]).push(x));
+  for(const no in g){if(!no||db.vouchers.some(v=>norm(v.no)===norm(no))){bad++;continue}const x0=g[no][0],lines=[];let miss=0;
+   g[no].forEach(x=>{const id=findItem(db,c(x,'رمز الصنف')),q=num(c(x,'الكمية'));id&&q>0?lines.push({itemId:id,qty:q,price:0}):miss++});
+   if(!lines.length){bad++;continue}db.vouchers.push({id:uid('v'),no,inv:c(x0,'رقم الفاتورة'),supId:ensure(db,'suppliers',c(x0,'المورد')||'مورد عام'),date:c(x0,'التاريخ')||today(),total:num(c(x0,'المبلغ الإجمالي')),notes:'استيراد',lines,invoiceImage:''});ok++;if(miss)bad++}}
+ else if(h.includes('رقم الصرف')){body.forEach(x=>{const id=findItem(db,c(x,'رمز الصنف','الصنف')),q=num(c(x,'الكمية')),no=c(x,'رقم الصرف');
+  if(!id||!q||!no||db.disb.some(d=>norm(d.no)===norm(no))){bad++;return}
+  db.disb.push({id:uid('d'),no,date:c(x,'التاريخ')||today(),kind:c(x,'النوع')==='إتلاف'?'إتلاف':'صرف',itemId:id,qty:q,place:c(x,'مكان الصرف'),recvId:ensure(db,'receivers',c(x,'المستلم')),notes:c(x,'ملاحظات')});
+  if(stock(id)<0){db.disb.pop();bad++}else ok++})}
+ else{body.forEach(x=>{const sku=c(x,'رمز الصنف','رمز SKU'),name=c(x,'وصف الصنف','الوصف');if(!sku||!name){bad++;return}
+  const v={sku,name,category:c(x,'التصنيف'),location:c(x,'الموقع'),open:num(c(x,'الكمية الافتتاحية')),min:num(c(x,'الحد الأدنى'))||3},i=db.items.find(z=>norm(z.sku)===norm(sku));
+  i?Object.assign(i,v):db.items.push(Object.assign({id:uid('i')},v));ok++})}
+ saveDB();renderAllTables();showToast(`✅ تم استيراد ${ok} — تم تجاوز ${bad} (مكرر/ناقص/رصيد غير كافٍ)`)}catch(err){showToast('❌ ملف غير صالح (استخدم CSV من القالب)')}e.target.value=''};rd.readAsText(f)}
+function downloadJSONBackup(){dl(`JACI_Backup_${today()}.json`,JSON.stringify(db,null,2),'application/json');showToast('💾 تم تنزيل النسخة الاحتياطية')}
+function restoreJSONBackup(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=migrate(JSON.parse(r.result));saveDB();renderAllTables();showToast('✅ تمت الاستعادة بنجاح')}catch(x){showToast('❌ ملف غير صالح')}e.target.value=''};r.readAsText(f)}
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=b=>{let c=-1;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0};
+function zip(files){const E=new TextEncoder(),P=[],C=[];let off=0;
+ for(const[n,d]of files){const nb=E.encode(n),b=E.encode(d),c=crc(b),h=new DataView(new ArrayBuffer(30));
+  h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint32(14,c,true);h.setUint32(18,b.length,true);h.setUint32(22,b.length,true);h.setUint16(26,nb.length,true);P.push(h.buffer,nb,b);
+  const g=new DataView(new ArrayBuffer(46));g.setUint32(0,0x02014b50,true);g.setUint16(4,20,true);g.setUint16(6,20,true);g.setUint16(8,0x0800,true);g.setUint32(16,c,true);g.setUint32(20,b.length,true);g.setUint32(24,b.length,true);g.setUint16(28,nb.length,true);g.setUint32(42,off,true);C.push(g.buffer,nb);off+=30+nb.length+b.length}
+ const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,C.reduce((s,x)=>s+x.byteLength,0),true);e.setUint32(16,off,true);
+ return new Blob([...P,...C,e.buffer],{type:'application/zip'})}
+const selfHtml=()=>'<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+function downloadFullZipPackage(){dl('JACI-App.zip',zip([['index.html',selfHtml()],...Object.entries(PKG),['data/JACI_Backup.json',JSON.stringify(db,null,2)]]));showToast('📦 تم تنزيل الحزمة الكاملة (تعمل دون إنترنت)')}
+function downloadAndroidAppPackage(f){dl(f,f==='index.html'?selfHtml():PKG[f],f.endsWith('json')?'application/json':'text/plain');showToast('⬇️ تم تحميل '+f)}
+
+/* ===== النظام ===== */
+function openResetModal(){$('modal-reset').style.display='flex'}
+function executeFactoryReset(){if($('inp-reset-pin').value.trim()!=='15539550')return showToast('⚠️ كلمة المرور غير صحيحة!');
+ db=EMPTY();saveDB();closeModals();$('inp-reset-pin').value='';renderAllTables();showToast('🧹 تم إفراغ البيانات وبقيت الجداول والقوالب سليمة')}
+async function requestAppPermissions(){try{if('Notification'in window&&await Notification.requestPermission()==='granted'){const n=db.items.filter(i=>stock(i.id)<=i.min).length;new Notification('JACI',{body:n?`يوجد ${n} صنف عند الحد الأدنى`:'لا توجد نواقص'})}}catch(e){}
+ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}showToast('✅ تم طلب الأذونات')}
+initTheme();renderAllTables();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+</script>
+</body>
+</html>
